@@ -1,0 +1,12 @@
+{
+  "_comment": "Built-in benchmark against a vLLM server (scripts/serve_vllm.sh). pass@k / pass^k need n_attempts >= k.",
+  "model": {"provider": "vllm", "model": "my-model", "base_url": "http://127.0.0.1:8000",
+            "sampling": {"temperature": 0.7, "top_p": 0.8, "top_k": 20, "max_new_tokens": 2048}},
+  "tasks": "../../data/tasks_v0.2/test.jsonl",
+  "skills_dir": ["../skills"],
+  "mcp_config": ["../mcp/servers.json"],
+  "n_attempts": 4,
+  "concurrency": 64,
+  "null_baseline": true,
+  "out": "../../runs/benchmark_vllm"
+}

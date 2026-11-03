@@ -1,0 +1,10 @@
+{
+  "_comment": "No model needed: replays each task's gold_actions. Validates tasks, tools, skills and MCP setup end to end.",
+  "model": {"provider": "oracle"},
+  "tasks": "../tasks/quickstart.json",
+  "skills_dir": ["../skills"],
+  "mcp_config": ["../mcp/servers.json"],
+  "toolkits": ["../tools/finance_tools.py", "../tools/todo_toolkit.py", "../tools/library_toolkit.py"],
+  "allow_shell": true,
+  "out": "../../runs/quickstart_oracle"
+}

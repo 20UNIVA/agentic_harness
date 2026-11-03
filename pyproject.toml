@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentic-harness"
+dynamic = ["version"]
+description = "Run any LLM with tools, skills and MCP servers on verifiable tasks; save trajectories for evaluation and training."
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.10"
+dependencies = []
+keywords = ["llm", "agents", "tool-use", "mcp", "skills", "evaluation", "reinforcement-learning", "trajectories"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.optional-dependencies]
+mcp-examples = ["mcp>=1.10", "pydantic>=2"]
+anthropic = ["anthropic>=1.0"]
+hf = ["torch", "transformers>=4.56"]
+yaml = ["pyyaml"]
+swift = ["ms-swift>=4.5"]
+dev = ["pytest>=7", "ruff>=0.6", "mcp>=1.10", "pydantic>=2", "anthropic>=1.0", "pyyaml"]
+
+[project.scripts]
+agentic-harness = "agentic_harness.cli:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "agentic_harness.core.types.HARNESS_VERSION"}
+
+[tool.setuptools.packages.find]
+include = ["agentic_harness*"]
+
+[tool.setuptools.package-data]
+agentic_harness = ["web/*.html"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 130
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B"]
+ignore = ["E501", "E731", "B008", "B904", "B905"]

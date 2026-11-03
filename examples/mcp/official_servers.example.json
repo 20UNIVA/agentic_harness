@@ -1,0 +1,26 @@
+{
+  "_comment": "Registration examples for official reference servers from github.com/modelcontextprotocol/servers. Not covered by the test suite: uvx / npx download them on first use, so they need network access and can touch the paths you give them: scope them to ${EPISODE_DIR}. Tasks in data/ do not use them.",
+  "mcpServers": {
+    "time": {
+      "command": "uvx",
+      "args": ["mcp-server-time", "--local-timezone", "Asia/Seoul"],
+      "scope": "run"
+    },
+    "git": {
+      "command": "uvx",
+      "args": ["mcp-server-git", "--repository", "${EPISODE_DIR}/repo"],
+      "scope": "episode"
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${EPISODE_DIR}"],
+      "scope": "episode"
+    },
+    "memory_reference": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "env": {"MEMORY_FILE_PATH": "${EPISODE_DIR}/memory.jsonl"},
+      "scope": "episode"
+    }
+  }
+}

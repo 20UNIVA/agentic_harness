@@ -1,0 +1,26 @@
+{
+  "_comment": "Default MCP registry used by the harness (agentic_harness/core/session.py). Format: the common `mcpServers` JSON plus optional harness keys (scope, timeout_s, allowed_tools, disabled_tools). Each episode gets a fresh process and a fresh ${EPISODE_DIR}.",
+  "mcpServers": {
+    "kanban": {
+      "command": "${PYTHON}",
+      "args": ["${CONFIG_DIR}/../mcp_servers/kanban_server.py", "--state", "${EPISODE_DIR}/kanban.json", "--seed", "${TASK_SEED}"],
+      "scope": "episode",
+      "timeout_s": 30,
+      "description": "Stateful Kanban board (cards, columns, assignees, comments)."
+    },
+    "wiki": {
+      "command": "${PYTHON}",
+      "args": ["${CONFIG_DIR}/../mcp_servers/wiki_server.py", "--state", "${EPISODE_DIR}/wiki.json", "--seed", "${TASK_SEED}"],
+      "scope": "episode",
+      "timeout_s": 30,
+      "description": "Read-only company wiki with keyword search."
+    },
+    "memory": {
+      "command": "${PYTHON}",
+      "args": ["${CONFIG_DIR}/../mcp_servers/memory_server.py", "--state", "${EPISODE_DIR}/memory.json", "--seed", "${TASK_SEED}"],
+      "scope": "episode",
+      "timeout_s": 30,
+      "description": "Knowledge-graph memory (entities, relations, observations); reference-server compatible tool names."
+    }
+  }
+}

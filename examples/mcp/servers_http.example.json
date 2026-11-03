@@ -1,0 +1,12 @@
+{
+  "_comment": "Connecting to an already running Streamable HTTP server shared by all episodes (scope: run). Start it first, e.g.: python examples/mcp_servers/wiki_server.py --seed 7 --state /tmp/wiki.json --transport http --port 8772 . A shared server is only appropriate for read-only tools or when tasks do not depend on per-episode state.",
+  "mcpServers": {
+    "wiki_http": {
+      "type": "http",
+      "url": "http://127.0.0.1:8772/mcp",
+      "headers": {},
+      "scope": "run",
+      "timeout_s": 30
+    }
+  }
+}

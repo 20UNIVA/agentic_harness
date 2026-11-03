@@ -1,0 +1,11 @@
+{
+  "_comment": "Claude via the official anthropic SDK (pip install anthropic; ANTHROPIC_API_KEY or an `ant auth login` profile). Sampling parameters are not sent; use effort.",
+  "model": {"provider": "anthropic", "model": "claude-opus-5-5", "effort": "medium", "max_tokens": 16000},
+  "tasks": "../tasks/quickstart.json",
+  "skills_dir": ["../skills"],
+  "mcp_config": ["../mcp/servers.json"],
+  "toolkits": ["../tools/finance_tools.py", "../tools/todo_toolkit.py", "../tools/library_toolkit.py"],
+  "allow_shell": true,
+  "concurrency": 4,
+  "out": "../../runs/quickstart_anthropic"
+}

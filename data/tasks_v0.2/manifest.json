@@ -1,0 +1,202 @@
+{
+  "harness_version": "0.2.0",
+  "created_at": "2026-11-02T18:33:41",
+  "ko_ratio": 0.3,
+  "templates": {
+    "retail": [
+      "cancel",
+      "cancel_by_product",
+      "clarify",
+      "exchange",
+      "irrelevant",
+      "latest_order",
+      "lookup_status",
+      "lookup_total",
+      "modify_address",
+      "policy_big_cancel",
+      "policy_other_user",
+      "price",
+      "recover",
+      "return"
+    ],
+    "workspace": [
+      "clarify",
+      "create_event",
+      "delete_own",
+      "email_attendees",
+      "email_code",
+      "event_time",
+      "irrelevant",
+      "move_notify",
+      "phone",
+      "policy_external",
+      "policy_not_organizer",
+      "recover"
+    ],
+    "filesystem": [
+      "append_todo",
+      "clarify",
+      "config_port",
+      "count_errors",
+      "create_note",
+      "csv_sum",
+      "edit_port",
+      "find_todo",
+      "irrelevant",
+      "organize_csv",
+      "policy_protected",
+      "recover",
+      "skill_archive_csvs",
+      "skill_archive_one",
+      "skill_archive_refuse"
+    ],
+    "travel_api": [
+      "book_flight_city",
+      "book_hotel",
+      "cheapest_flight",
+      "clarify",
+      "fx",
+      "hotel_in_krw",
+      "irrelevant",
+      "policy_over_budget",
+      "recover",
+      "skill_book_cheapest",
+      "skill_weather",
+      "trip",
+      "weather"
+    ],
+    "data_sql": [
+      "avg_salary",
+      "clarify",
+      "count_dept",
+      "irrelevant",
+      "manager_top_budget",
+      "policy_salary",
+      "recover",
+      "sales_growth",
+      "sales_total",
+      "skill_fiscal_half_top_product",
+      "skill_fiscal_quarter_sales",
+      "top_seller"
+    ],
+    "mcp_examples": [
+      "cross_meeting_card",
+      "kanban_bulk_move",
+      "kanban_comment",
+      "kanban_create_assign",
+      "kanban_move",
+      "kanban_who",
+      "memory_org",
+      "memory_recall",
+      "memory_relation",
+      "memory_store",
+      "wiki_expense",
+      "wiki_irrelevant",
+      "wiki_oncall",
+      "wiki_release"
+    ]
+  },
+  "splits": {
+    "test": {
+      "path": "data/tasks_v0.2/test.jsonl",
+      "n": 800,
+      "dupes_removed": 0,
+      "by_domain": {
+        "retail": 140,
+        "workspace": 130,
+        "filesystem": 150,
+        "travel_api": 130,
+        "data_sql": 120,
+        "none": 130
+      },
+      "by_category": {
+        "write": 147,
+        "clarify": 50,
+        "multi_write": 53,
+        "irrelevant": 60,
+        "chain": 150,
+        "lookup": 140,
+        "policy": 80,
+        "recover": 50,
+        "skill": 60,
+        "cross": 10
+      },
+      "by_lang": {
+        "en": 558,
+        "ko": 242
+      },
+      "unique_visible_prompts": 800,
+      "gate_gold_pass": "800/800",
+      "gate_null_pass_policy_only": 70,
+      "seconds": 137.4
+    },
+    "dev": {
+      "path": "data/tasks_v0.2/dev.jsonl",
+      "n": 320,
+      "dupes_removed": 0,
+      "by_domain": {
+        "retail": 56,
+        "workspace": 52,
+        "filesystem": 60,
+        "travel_api": 52,
+        "data_sql": 48,
+        "none": 52
+      },
+      "by_category": {
+        "write": 59,
+        "clarify": 20,
+        "multi_write": 21,
+        "irrelevant": 24,
+        "chain": 60,
+        "lookup": 56,
+        "policy": 32,
+        "recover": 20,
+        "skill": 24,
+        "cross": 4
+      },
+      "by_lang": {
+        "en": 225,
+        "ko": 95
+      },
+      "unique_visible_prompts": 320,
+      "gate_gold_pass": "320/320",
+      "gate_null_pass_policy_only": 28,
+      "seconds": 54.7
+    },
+    "train": {
+      "path": "data/tasks_v0.2/train.jsonl",
+      "n": 11706,
+      "dupes_removed": 0,
+      "by_domain": {
+        "retail": 2052,
+        "workspace": 1950,
+        "filesystem": 2148,
+        "travel_api": 1902,
+        "data_sql": 1752,
+        "none": 1902
+      },
+      "by_category": {
+        "write": 2211,
+        "clarify": 750,
+        "multi_write": 789,
+        "irrelevant": 660,
+        "chain": 2250,
+        "lookup": 2100,
+        "policy": 1200,
+        "recover": 750,
+        "skill": 846,
+        "cross": 150
+      },
+      "by_lang": {
+        "en": 8038,
+        "ko": 3668
+      },
+      "unique_visible_prompts": 10241,
+      "gate_gold_pass": "11706/11706",
+      "gate_null_pass_policy_only": 1050,
+      "seconds": 2037.3
+    }
+  },
+  "cross_split_overlap": 0,
+  "cross_split_visible_overlap": "0 by construction (generated test -> dev -> train, each excluding earlier visible prompts)"
+}

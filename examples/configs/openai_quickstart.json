@@ -1,0 +1,13 @@
+{
+  "_comment": "OpenAI API (export OPENAI_API_KEY=...). Set model to a tool-calling model you have access to.",
+  "model": {"provider": "openai", "model": "YOUR_OPENAI_MODEL", "api_key_env": "OPENAI_API_KEY",
+            "sampling": {"temperature": 0.2, "max_new_tokens": 2048}},
+  "tasks": "../tasks/quickstart.json",
+  "skills_dir": ["../skills"],
+  "mcp_config": ["../mcp/servers.json"],
+  "toolkits": ["../tools/finance_tools.py", "../tools/todo_toolkit.py", "../tools/library_toolkit.py"],
+  "allow_shell": true,
+  "n_attempts": 2,
+  "concurrency": 8,
+  "out": "../../runs/quickstart_openai"
+}

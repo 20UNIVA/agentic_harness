@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.venv/
+runs/
+data/export/
+data/tasks_*/train.jsonl
+*.stderr.log
+.pytest_cache/

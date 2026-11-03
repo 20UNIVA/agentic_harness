@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>agentic-harness chat</title>
+<style>
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --text: #1d2228; --muted: #67707b; --line: #e1e4e8;
+  --user: #2f6fde; --user-text: #ffffff; --agent: #ffffff; --tool: #f1f3f6; --accent: #2f6fde;
+  --good: #1f8a4c; --bad: #c43d3d; --warn: #a76b00; --code: #eef0f3;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15181c; --panel: #1d2126; --text: #e4e7eb; --muted: #9aa3ad; --line: #2e343b;
+    --user: #3b78e7; --user-text: #ffffff; --agent: #1d2126; --tool: #23282e; --accent: #6d9eff;
+    --good: #3fb871; --bad: #e46a6a; --warn: #e0a43a; --code: #2a3037;
+  }
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; overflow-x: hidden; background: var(--bg); color: var(--text);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", Roboto, sans-serif; }
+header { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line);
+  background: var(--panel); position: sticky; top: 0; z-index: 2; flex-wrap: wrap; }
+header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+.badge { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px;
+  max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.spacer { flex: 1; }
+button { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--panel); color: var(--text);
+  border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button:disabled { opacity: .5; cursor: default; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.on-good { background: var(--good); border-color: var(--good); color: #fff; }
+button.on-bad { background: var(--bad); border-color: var(--bad); color: #fff; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; height: calc(100% - 53px); }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: minmax(0, 1fr); height: auto; }
+  header { gap: 8px; } header .badge { max-width: 60vw; } button { padding: 5px 10px; }
+  main { height: calc(100vh - 130px); min-height: 360px; }
+  aside { border-left: 0; border-top: 1px solid var(--line); }
+  .bubble, .tool, .think { max-width: 100%; }
+}
+main { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+#log { flex: 1; overflow-y: auto; padding: 20px 16px 8px; }
+.wrap { max-width: 860px; margin: 0 auto; }
+.msg { margin: 10px 0; display: flex; }
+.msg.user { justify-content: flex-end; }
+.bubble { max-width: 85%; padding: 10px 14px; border-radius: 14px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; }
+.user .bubble { background: var(--user); color: var(--user-text); border-bottom-right-radius: 4px; }
+.agent .bubble { background: var(--agent); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+.bubble code { background: var(--code); border-radius: 4px; padding: 1px 4px; font-size: 13px; }
+.user .bubble code { background: rgba(255,255,255,.2); }
+.bubble pre { background: var(--code); padding: 8px 10px; border-radius: 8px; overflow-x: auto; margin: 6px 0; white-space: pre; }
+.tool { margin: 6px 0 6px 0; max-width: 85%; border: 1px solid var(--line); background: var(--tool); border-radius: 10px; font-size: 13px; }
+.tool summary { cursor: pointer; padding: 7px 12px; list-style: none; display: flex; gap: 8px; align-items: baseline; }
+.tool summary::-webkit-details-marker { display: none; }
+.tool .name { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 600; }
+.tool .args { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
+.tool .tag { font-size: 11px; border-radius: 999px; padding: 0 8px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.tool .tag.err { color: var(--bad); border-color: var(--bad); }
+.tool .tag.pending { color: var(--warn); border-color: var(--warn); }
+.tool pre { margin: 0; padding: 8px 12px; border-top: 1px solid var(--line); white-space: pre-wrap; word-break: break-word;
+  max-height: 320px; overflow-y: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+.think { max-width: 85%; color: var(--muted); font-size: 13px; margin: 4px 0; }
+.think summary { cursor: pointer; }
+.think div { white-space: pre-wrap; padding: 4px 0 4px 12px; border-left: 2px solid var(--line); }
+.note { text-align: center; color: var(--muted); font-size: 13px; margin: 12px 0; }
+.note.err { color: var(--bad); }
+.note.warn { color: var(--warn); }
+.empty { color: var(--muted); text-align: center; margin-top: 18vh; }
+.empty b { color: var(--text); }
+form { border-top: 1px solid var(--line); background: var(--panel); padding: 12px 16px; }
+form .wrap { display: flex; gap: 8px; align-items: flex-end; }
+textarea { flex: 1; resize: none; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 10px; padding: 9px 12px; min-height: 42px; max-height: 200px; }
+textarea:focus { outline: none; border-color: var(--accent); }
+aside { border-left: 1px solid var(--line); background: var(--panel); overflow-y: auto; padding: 14px; font-size: 13px; }
+aside h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 18px 0 8px; }
+aside h2:first-child { margin-top: 0; }
+.row { display: flex; gap: 6px; flex-wrap: wrap; }
+.row input { flex: 1; min-width: 0; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 8px; padding: 6px 8px; }
+ul.plain { list-style: none; padding: 0; margin: 0; }
+ul.plain li { padding: 5px 0; border-bottom: 1px dashed var(--line); overflow-wrap: anywhere; }
+ul.plain li:last-child { border-bottom: 0; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+.muted { color: var(--muted); }
+.ok { color: var(--good); } .bad { color: var(--bad); }
+details.sys > summary { cursor: pointer; list-style: none; }
+details.sys > summary::-webkit-details-marker { display: none; }
+details.sys > summary h2 { display: inline-block; margin: 18px 0 8px; }
+details.sys > summary h2::after { content: " ▸"; }
+details.sys[open] > summary h2::after { content: " ▾"; }
+details.sys pre { white-space: pre-wrap; background: var(--bg); padding: 8px; border-radius: 8px; max-height: 260px; overflow-y: auto; }
+.status { font-size: 12px; color: var(--muted); }
+.status.running { color: var(--warn); }
+</style>
+</head>
+<body>
+<header>
+  <h1>agentic-harness chat</h1>
+  <span class="badge" id="model" title="model">connecting...</span>
+  <span class="status" id="status"></span>
+  <span class="spacer"></span>
+  <button id="good" title="Rate this conversation good (used for SFT export)">👍 Good</button>
+  <button id="bad" title="Rate this conversation bad (excluded from SFT export)">👎 Bad</button>
+  <button id="new" title="Save this conversation and start a new one">Save &amp; new</button>
+  <button id="discard" title="Drop this conversation without saving">Discard</button>
+</header>
+<div class="layout">
+  <main>
+    <div id="log"><div class="wrap" id="msgs"></div></div>
+    <form id="form" autocomplete="off">
+      <div class="wrap">
+        <textarea id="input" rows="1" placeholder="Message the agent" title="Enter to send, Shift+Enter for a new line"></textarea>
+        <button type="submit" class="primary" id="send">Send</button>
+        <button type="button" id="stop" hidden>Stop</button>
+      </div>
+    </form>
+  </main>
+  <aside>
+    <h2>Feedback</h2>
+    <div class="row"><input id="noteText" placeholder="Note about this conversation"><button id="noteBtn">Add</button></div>
+    <ul class="plain" id="notes"></ul>
+    <h2>Executed tool calls</h2>
+    <ul class="plain mono" id="calls"><li class="muted">none yet</li></ul>
+    <h2>Saved conversations</h2>
+    <ul class="plain" id="saved"><li class="muted">none yet</li></ul>
+    <p class="muted" id="outdir"></p>
+    <details class="sys"><summary><h2 id="toolsTitle">Tools</h2></summary><ul class="plain" id="tools"></ul></details>
+    <details class="sys"><summary><h2>System prompt</h2></summary><pre id="system"></pre></details>
+  </aside>
+</div>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+let sid = params.get("sid");
+try { sid = sid || localStorage.getItem("ah_chat_sid"); } catch (e) {}
+if (!sid) sid = "s" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
+try { localStorage.setItem("ah_chat_sid", sid); } catch (e) {}
+
+let running = false;
+let toolCards = {};          // tool_call_id -> card element
+let state = null;
+
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+}
+function md(s) {           // tiny Markdown: ```code```, `code`, **bold**
+  const parts = String(s || "").split(/```/);
+  return parts.map((p, i) => {
+    if (i % 2 === 1) return "<pre>" + esc(p.replace(/^[a-zA-Z0-9_-]*\n/, "")) + "</pre>";
+    return esc(p).replace(/`([^`\n]+)`/g, "<code>$1</code>").replace(/\*\*([^*\n]+)\*\*/g, "<b>$1</b>");
+  }).join("");
+}
+function pretty(text) {
+  const t = String(text == null ? "" : text);
+  try { return JSON.stringify(JSON.parse(t), null, 2); } catch (e) { return t; }
+}
+function isError(text) {
+  try { const o = JSON.parse(text); return !!(o && typeof o === "object" && !Array.isArray(o) && "error" in o); } catch (e) { return false; }
+}
+function scrollDown() { const log = $("log"); log.scrollTop = log.scrollHeight; }
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+
+function addNote(text, cls) { $("msgs").appendChild(el("div", "note " + (cls || ""), esc(text))); scrollDown(); }
+
+function renderMessage(m) {
+  const box = $("msgs");
+  const empty = box.querySelector(".empty"); if (empty) empty.remove();
+  if (m.role === "user") {
+    const row = el("div", "msg user"); row.appendChild(el("div", "bubble", md(m.content))); box.appendChild(row);
+  } else if (m.role === "assistant") {
+    if (m.reasoning_content) {
+      const d = el("details", "think"); d.appendChild(el("summary", null, "thinking"));
+      d.appendChild(el("div", null, esc(m.reasoning_content))); box.appendChild(d);
+    }
+    if ((m.content || "").trim()) {
+      const row = el("div", "msg agent"); row.appendChild(el("div", "bubble", md(m.content.trim()))); box.appendChild(row);
+    }
+    for (const tc of (m.tool_calls || [])) {
+      const args = JSON.stringify(tc.function.arguments);
+      const d = el("details", "tool");
+      d.innerHTML = '<summary><span>→</span><span class="name">' + esc(tc.function.name) + '</span><span class="args">' +
+        esc(args) + '</span><span class="tag pending">running</span></summary><pre class="argsfull">' +
+        esc(JSON.stringify(tc.function.arguments, null, 2)) + "</pre>";
+      box.appendChild(d); toolCards[tc.id] = d;
+    }
+  } else if (m.role === "tool") {
+    if (m.name === "harness") { addNote("harness: " + m.content, "warn"); return; }
+    let card = toolCards[m.tool_call_id];
+    if (!card) { card = el("details", "tool", '<summary><span class="name">' + esc(m.name || "tool") + "</span></summary>"); box.appendChild(card); }
+    const tag = card.querySelector(".tag");
+    const err = m.is_error != null ? m.is_error : isError(m.content);
+    if (tag) { tag.className = "tag" + (err ? " err" : ""); tag.textContent = err ? "error" : "result"; }
+    if (err) card.open = true;
+    card.appendChild(el("pre", null, esc(pretty(m.content))));
+  }
+  scrollDown();
+}
+
+function renderAll(st) {
+  toolCards = {};
+  const box = $("msgs"); box.innerHTML = "";
+  if (!st.messages.length) {
+    box.appendChild(el("div", "empty", "<b>Talk to the agent.</b><br>Tool calls and results appear inline; every conversation is saved as a trajectory."));
+  }
+  st.messages.forEach(renderMessage);
+  if (st.setup_error) addNote("setup error: " + st.setup_error, "err");
+  if (st.infra_error) addNote("infrastructure error: " + st.infra_error, "err");
+  else if (st.status && !["idle", "awaiting_user", "running"].includes(st.status)) addNote("agent stopped: " + st.status, "warn");
+}
+
+function renderSide(st) {
+  state = st;
+  $("model").textContent = st.model || "model";
+  $("model").title = st.model || "";
+  $("status").textContent = running ? "working..." : (st.status === "idle" ? "" : st.status.replace("_", " "));
+  $("status").className = "status" + (running ? " running" : "");
+  $("good").className = st.rating === "good" ? "on-good" : "";
+  $("bad").className = st.rating === "bad" ? "on-bad" : "";
+  $("notes").innerHTML = (st.notes || []).map((n) => "<li>" + esc(n) + "</li>").join("");
+  $("calls").innerHTML = st.calls.length ? st.calls.map((c) =>
+    '<li><span class="' + (c.ok ? "ok" : "bad") + '">' + (c.ok ? "ok" : "err") + "</span> " + esc(c.name) + " " +
+    '<span class="muted">' + esc(JSON.stringify(c.arguments)) + "</span></li>").join("") : '<li class="muted">none yet</li>';
+  $("toolsTitle").textContent = "Tools (" + st.tools.length + ")";
+  $("tools").innerHTML = st.tools.map((t) => '<li><span class="mono">' + esc(t.name) + '</span> <span class="muted">· ' +
+    esc(t.source) + "</span><br><span class=\"muted\">" + esc((t.description || "").split("\n")[0].slice(0, 140)) + "</span></li>").join("")
+    || '<li class="muted">no tools</li>';
+  $("saved").innerHTML = st.saved.length ? st.saved.slice().reverse().map((s) => "<li>" +
+    (s.rating ? '<span class="' + (s.rating === "good" ? "ok" : "bad") + '">' + s.rating + "</span> " : "") +
+    esc(s.first_message) + '<br><span class="muted mono">' + esc(s.task_id) + " · " + s.n_user_messages + " msg</span></li>").join("")
+    : '<li class="muted">none yet</li>';
+  $("outdir").textContent = st.out_dir ? "Saved to " + st.out_dir + "/trajectories.jsonl" : "";
+  $("system").textContent = st.system_prompt || "";
+  const busy = running;
+  for (const id of ["good", "bad", "new", "discard"]) $(id).disabled = busy;
+  $("send").hidden = busy; $("stop").hidden = !busy;
+}
+
+async function api(path, body) {
+  const r = await fetch(path, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({sid, ...body})});
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+
+async function refresh() {
+  const r = await fetch("/api/state?sid=" + encodeURIComponent(sid));
+  const st = await r.json();
+  renderAll(st); renderSide(st);
+}
+
+async function stream(path, body) {
+  running = true; renderSide(state || {tools: [], calls: [], saved: [], status: "running"});
+  try {
+    const r = await fetch(path, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({sid, ...body})});
+    if (!r.ok) { const j = await r.json(); throw new Error(j.error || r.statusText); }
+    const reader = r.body.getReader(); const dec = new TextDecoder(); let buf = "";
+    let final = null;
+    for (;;) {
+      const {value, done} = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, {stream: true});
+      let i;
+      while ((i = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, i); buf = buf.slice(i + 1);
+        if (!line.trim()) continue;
+        const ev = JSON.parse(line);
+        if (ev.type === "message") renderMessage(ev.message);
+        else if (ev.type === "error") addNote(ev.error + (ev.retry ? "  (press Send with an empty box, or type /retry, to ask again)" : ""), "err");
+        else if (ev.type === "info") addNote(ev.info);
+        else if (ev.type === "done") final = ev.state;
+      }
+    }
+    running = false;
+    if (final) {
+      if (final.infra_error) addNote("infrastructure error: " + final.infra_error, "err");
+      else if (!["awaiting_user", "idle"].includes(final.status)) addNote("agent stopped: " + final.status + " (send a message to continue)", "warn");
+      renderSide(final);
+    } else { await refresh(); }
+  } catch (e) {
+    running = false; addNote("error: " + e.message, "err"); await refresh();
+  }
+}
+
+$("form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (running) return;
+  const text = $("input").value.trim();
+  if (text === "/retry" || (!text && state && state.messages.length && state.status !== "awaiting_user")) {
+    $("input").value = ""; stream("/api/retry", {}); return;
+  }
+  if (!text) return;
+  $("input").value = ""; autosize();
+  renderMessage({role: "user", content: text});
+  stream("/api/send", {text});
+});
+$("input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); $("form").requestSubmit(); }
+});
+function autosize() { const t = $("input"); t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 200) + "px"; }
+$("input").addEventListener("input", autosize);
+$("stop").addEventListener("click", () => api("/api/stop", {}).catch(() => {}));
+$("good").addEventListener("click", async () => renderSide(await api("/api/rate", {rating: state && state.rating === "good" ? null : "good"})));
+$("bad").addEventListener("click", async () => renderSide(await api("/api/rate", {rating: state && state.rating === "bad" ? null : "bad"})));
+$("noteBtn").addEventListener("click", async () => {
+  const note = $("noteText").value.trim(); if (!note) return;
+  $("noteText").value = ""; renderSide(await api("/api/note", {note}));
+});
+$("noteText").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); $("noteBtn").click(); } });
+$("new").addEventListener("click", async () => {
+  const j = await api("/api/new", {});
+  renderAll(j.state); renderSide(j.state);
+  if (j.saved) addNote("saved " + j.saved.task_id + (j.saved.rating ? " (rated " + j.saved.rating + ")" : ""));
+});
+$("discard").addEventListener("click", async () => {
+  if (state && state.messages.length && !confirm("Discard this conversation without saving?")) return;
+  const st = await api("/api/discard", {}); renderAll(st); renderSide(st);
+});
+refresh().catch((e) => addNote("could not reach the server: " + e.message, "err"));
+$("input").focus();
+</script>
+</body>
+</html>

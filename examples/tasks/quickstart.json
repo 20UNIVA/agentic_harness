@@ -1,0 +1,374 @@
+{
+ "tasks": [
+  {
+   "id": "finance-mortgage",
+   "category": "custom_tools",
+   "toolkits": [
+    "finance"
+   ],
+   "instruction": "I'm taking a $300,000 mortgage at 4.5% annual interest for 30 years. What will my monthly payment be?",
+   "gold_actions": [
+    {
+     "name": "loan_payment",
+     "arguments": {
+      "principal": 300000,
+      "annual_rate_pct": 4.5,
+      "years": 30
+     }
+    }
+   ],
+   "gold_final": "Your monthly payment would be $1,520.06.",
+   "verify": {
+    "answers": [
+     {
+      "number": 1520.06,
+      "tol": 0.5
+     }
+    ]
+   }
+  },
+  {
+   "id": "finance-fx",
+   "category": "custom_tools",
+   "toolkits": [
+    "finance"
+   ],
+   "instruction": "How much is 250 euros in Korean won at today's reference rate?",
+   "gold_actions": [
+    {
+     "name": "convert_currency",
+     "arguments": {
+      "amount": 250,
+      "source": "EUR",
+      "target": "KRW"
+     }
+    }
+   ],
+   "gold_final": "250 EUR is about 375,000 KRW.",
+   "verify": {
+    "answers": [
+     {
+      "number": 375000.0,
+      "tol": 1
+     }
+    ]
+   }
+  },
+  {
+   "id": "todo-update",
+   "category": "custom_tools",
+   "toolkits": [
+    "todo"
+   ],
+   "instruction": "Add 'Book dentist appointment' to my todo list as high priority, and mark 'Renew passport' as done.",
+   "gold_actions": [
+    {
+     "name": "list_items",
+     "arguments": {}
+    },
+    {
+     "name": "add_item",
+     "arguments": {
+      "text": "Book dentist appointment",
+      "priority": "high"
+     }
+    },
+    {
+     "name": "complete_item",
+     "arguments": {
+      "item_id": 1
+     }
+    }
+   ],
+   "gold_final": "Added the dentist appointment (high priority) and marked 'Renew passport' as done.",
+   "verify": {
+    "checks": [
+     {
+      "type": "state",
+      "toolkit": "todo",
+      "json_subset": {
+       "items": [
+        {
+         "text": "Book dentist appointment",
+         "priority": "high",
+         "done": false
+        },
+        {
+         "text": "Renew passport",
+         "done": true
+        }
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "library-checkout",
+   "category": "custom_tools",
+   "toolkits": [
+    "library"
+   ],
+   "instruction": "Carol would like to borrow Martin Kleppmann's book about data-intensive applications. Please check it out for her (username carol).",
+   "gold_actions": [
+    {
+     "name": "search_books",
+     "arguments": {
+      "query": "Kleppmann"
+     }
+    },
+    {
+     "name": "checkout_book",
+     "arguments": {
+      "book_id": "B2",
+      "member": "carol"
+     }
+    }
+   ],
+   "gold_final": "Checked out 'Designing Data-Intensive Applications' (B2) to carol.",
+   "verify": {
+    "checks": [
+     {
+      "type": "toolkit",
+      "toolkit": "library",
+      "kind": "on_loan",
+      "book_id": "B2",
+      "member": "carol"
+     }
+    ]
+   }
+  },
+  {
+   "id": "skill-fiscal-sales",
+   "category": "skills",
+   "env": {
+    "domain": "data_sql",
+    "seed": 7
+   },
+   "skills": [
+    "fiscal-calendar",
+    "file-archiving",
+    "travel-api"
+   ],
+   "instruction": "What were our total Valve sales in FY2026 Q2?",
+   "gold_actions": [
+    {
+     "name": "load_skill",
+     "arguments": {
+      "name": "fiscal-calendar"
+     }
+    },
+    {
+     "name": "run_sql",
+     "arguments": {
+      "query": "SELECT ROUND(SUM(amount), 2) FROM sales WHERE product = 'Valve' AND month IN ('2025-10', '2025-11', '2025-12')"
+     }
+    }
+   ],
+   "gold_final": "FY2026 Q2 is Oct-Dec 2025; total Valve sales were 12541.23.",
+   "verify": {
+    "answers": [
+     {
+      "number": 12541.23,
+      "tol": 0.01
+     }
+    ]
+   }
+  },
+  {
+   "id": "mcp-kanban-move",
+   "category": "mcp",
+   "mcp_servers": [
+    "kanban"
+   ],
+   "env": {
+    "domain": "none",
+    "seed": 7
+   },
+   "instruction": "The task 'Migrate CI to new runners' is finished. Move its card to done.",
+   "gold_actions": [
+    {
+     "name": "mcp__kanban__list_cards",
+     "arguments": {}
+    },
+    {
+     "name": "mcp__kanban__move_card",
+     "arguments": {
+      "card_id": "CARD-103",
+      "column": "done"
+     }
+    }
+   ],
+   "gold_final": "Moved CARD-103 to done.",
+   "verify": {
+    "checks": [
+     {
+      "type": "mcp_call",
+      "server": "kanban",
+      "tool": "get_card",
+      "arguments": {
+       "card_id": "CARD-103"
+      },
+      "expect_json": {
+       "column": "done"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "mcp-memory-setup-recall",
+   "category": "mcp",
+   "mcp_servers": [
+    "memory"
+   ],
+   "mcp_setup": [
+    {
+     "server": "memory",
+     "tool": "create_entities",
+     "arguments": {
+      "entities": [
+       {
+        "name": "Jordan Blake",
+        "entityType": "person",
+        "observations": [
+         "prefers aisle seats",
+         "is vegetarian"
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "instruction": "We're ordering lunch for the offsite. Is there anything in memory about Jordan Blake's diet?",
+   "gold_actions": [
+    {
+     "name": "mcp__memory__search_nodes",
+     "arguments": {
+      "query": "Jordan Blake"
+     }
+    }
+   ],
+   "gold_final": "Yes - Jordan Blake is vegetarian.",
+   "verify": {
+    "answers": [
+     "vegetarian"
+    ]
+   }
+  },
+  {
+   "id": "mcp-plus-tools-budget",
+   "category": "mcp+custom_tools",
+   "mcp_servers": [
+    "memory"
+   ],
+   "toolkits": [
+    "finance"
+   ],
+   "instruction": "Remember for Lucia Rossi that her travel budget is 900 USD, stored as an observation in KRW using today's rate (format: 'travel budget <amount> KRW').",
+   "mcp_setup": [
+    {
+     "server": "memory",
+     "tool": "create_entities",
+     "arguments": {
+      "entities": [
+       {
+        "name": "Lucia Rossi",
+        "entityType": "person",
+        "observations": []
+       }
+      ]
+     }
+    }
+   ],
+   "gold_actions": [
+    {
+     "name": "convert_currency",
+     "arguments": {
+      "amount": 900,
+      "source": "USD",
+      "target": "KRW"
+     }
+    },
+    {
+     "name": "mcp__memory__add_observations",
+     "arguments": {
+      "observations": [
+       {
+        "entityName": "Lucia Rossi",
+        "contents": [
+         "travel budget 1242000.0 KRW"
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "gold_final": "Saved: travel budget 1,242,000 KRW.",
+   "verify": {
+    "python": "verifiers.py:budget_saved"
+   }
+  },
+  {
+   "id": "shell-skill-csv",
+   "category": "skills+shell",
+   "toolkits": [
+    "shell"
+   ],
+   "skills": [
+    "csv-insights"
+   ],
+   "files": {
+    "data/orders.csv": "date,region,amount\n2026-10-01,north,120.5\n2026-10-02,south,80.0\n2026-10-03,north,42.0\n2026-10-04,east,310.0\n2026-10-05,north,77.25\n2026-10-06,south,15.0\n2026-10-07,north,260.0\n"
+   },
+   "instruction": "What is the median order amount for the north region in data/orders.csv?",
+   "gold_actions": [
+    {
+     "name": "load_skill",
+     "arguments": {
+      "name": "csv-insights"
+     }
+    },
+    {
+     "name": "run_command",
+     "arguments": {
+      "command": "python skills/csv-insights/scripts/summarize.py data/orders.csv --where region=north --column amount"
+     }
+    }
+   ],
+   "gold_final": "The median north-region order amount is 98.88.",
+   "verify": {
+    "answers": [
+     {
+      "number": 98.88,
+      "tol": 0.01
+     }
+    ]
+   }
+  },
+  {
+   "id": "no-tools-primes",
+   "category": "plain",
+   "instruction": "Give me three different prime numbers between 100 and 150, separated by commas.",
+   "gold_final": "101, 103, 107",
+   "verify": {
+    "python": "verifiers.py:three_primes"
+   }
+  },
+  {
+   "id": "open-ended-plan",
+   "category": "unscored",
+   "toolkits": [
+    "todo"
+   ],
+   "instruction": "Look at my todo list and suggest what I should do first today. No changes please.",
+   "gold_actions": [
+    {
+     "name": "list_items",
+     "arguments": {}
+    }
+   ],
+   "gold_final": "Start with renewing your passport (high priority)."
+  }
+ ]
+}

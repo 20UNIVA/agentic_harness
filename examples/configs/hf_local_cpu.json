@@ -1,0 +1,12 @@
+{
+  "_comment": "Local Hugging Face model with transformers (no server). device can be cpu, cuda:0, mps.",
+  "model": {"provider": "hf_local", "model": "/path/to/hf_model", "device": "cpu", "threads": 8,
+            "sampling": {"temperature": 0.7, "top_p": 0.8, "top_k": 20, "max_new_tokens": 512}},
+  "tasks": "../tasks/quickstart.json",
+  "skills_dir": ["../skills"],
+  "mcp_config": ["../mcp/servers.json"],
+  "toolkits": ["../tools/finance_tools.py", "../tools/todo_toolkit.py", "../tools/library_toolkit.py"],
+  "allow_shell": true,
+  "concurrency": 4,
+  "out": "../../runs/quickstart_hf"
+}
